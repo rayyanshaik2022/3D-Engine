@@ -2,6 +2,7 @@ import pygame
 import numpy as np
 import math
 import os
+import random
 
 WIDTH, HEIGHT = 800, 680
 TITLE = "3d Engine"
@@ -172,10 +173,17 @@ class Game:
             points, lines, faces = self.world.draw_object(id_='axis',config={'points':True, 'lines':True, 'faces':True} )
         
             faces = sorted(faces, key=lambda x: x[1], reverse=True)
+            q =0 
             for face in faces:
                 if face[2] == True:
                     poly = face[0]
-                    pygame.draw.polygon(self.screen, (0,0,255), poly)
+                    
+                    if q == 0:
+                        col = (255,0,0)
+                    else:
+                        col = (0,255,255)
+                    pygame.draw.polygon(self.screen, col, poly)
+                q += 1
                     
             for line in lines:
                 start = line[0]

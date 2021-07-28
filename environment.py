@@ -74,14 +74,17 @@ class Environment(object):
         
         if config['faces']:
             for face in obj['faces']:
-                vector_list = [perspective_points[x].vector for x in face]
-                avg_vector = Vector3.average_vector(vector_list)
+                vector_list1 = [obj['points'][x] - self.camera.global_pos for x in face]
+                avg_vector1 = Vector3.average_vector(vector_list1)
                 
-                if abs(avg_vector.z) < self.poly_clip_dist:
+                vector_list2 = [perspective_points[x].vector for x in face]
+                avg_vector2 = Vector3.average_vector(vector_list2)
+                
+                if abs(avg_vector2.z) < self.poly_clip_dist:
                     continue
                 
                 draw_list = [perspective_points[i].xyz for i in face]
-                distance_from_cam = self.camera.global_pos.distance(avg_vector)
+                distance_from_cam = self.camera.global_pos.distance(avg_vector1)
                 
                 all_points_past_cam_z = True
                 for point in draw_list:
