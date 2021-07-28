@@ -67,21 +67,26 @@ class Environment(object):
         # Get draw lines
         if config['lines']:
             for startpoint in obj['lines']:
-                    for endpoint in self.objects[id_]['lines'][startpoint]:             
-                        lines.append(
-                            (perspective_points[startpoint].xyz, perspective_points[endpoint].xyz)
-                        )
+                    for endpoint in self.objects[id_]['lines'][startpoint]:  
+                        
+                        if perspective_points[startpoint].xyz[2] > 0 and perspective_points[endpoint].xyz[2] > 0:
+                            lines.append(
+                                (perspective_points[startpoint].xyz, perspective_points[endpoint].xyz)
+                            )
         
         if config['faces']:
             for face in obj['faces']:
-                vector_list1 = [obj['points'][x] - self.camera.global_pos for x in face]
-                avg_vector1 = Vector3.average_vector(vector_list1)
                 
+                # Position accounting for camera view/rotation
                 vector_list2 = [perspective_points[x].vector for x in face]
                 avg_vector2 = Vector3.average_vector(vector_list2)
                 
                 if abs(avg_vector2.z) < self.poly_clip_dist:
                     continue
+                
+                # Position to camera raw world position
+                vector_list1 = [obj['points'][x] - self.camera.global_pos for x in face]
+                avg_vector1 = Vector3.average_vector(vector_list1)
                 
                 draw_list = [perspective_points[i].xyz for i in face]
                 distance_from_cam = self.camera.global_pos.distance(avg_vector1)

@@ -25,7 +25,7 @@ class Game:
         camera_pos = Vector3(0,0,0)
         cam = Camera((WIDTH, HEIGHT))
         
-        self.world = Environment(cam, (0,0,0))
+        self.world = Environment(cam, (255,255,255))
         
         scale = 1
         self.world.add_object(
@@ -123,57 +123,13 @@ class Game:
 
     def draw(self):
         self.screen.fill(self.world.color)
-        cam = self.world.camera
-        
-        for obj in self.world.get_points():
-            break
-            for point in obj:
-                output = cam.orient_vector(point)
-                x, y, z = int(output[0]), int(output[1]), output[2]
-                if z > 0:
-                    size = 10
-                    dist = cam.global_pos.distance(point)
-                    
-                    if int(size/dist) == 0:
-                        if x > 0 and x < WIDTH and y > 0 and y < HEIGHT:
-                            self.screen.set_at((x, y), (255,255,255))
-                    else:
-                        pygame.draw.circle(self.screen, (255,255,255), (x, y), int(size/dist))
-        
-        lines = self.world.get_lines() 
-        for shape in lines:
-            break
-            for pair in shape:
-                point_a = cam.orient_vector(pair[0])
-                point_b = cam.orient_vector(pair[1])
-                
-                x_a, y_a, z_a = int(point_a[0]), int(point_a[1]), point_a[2]
-                x_b, y_b, z_b = int(point_b[0]), int(point_b[1]), point_b[2]
-                if z_a > 0 and z_b > 0:
-                    pygame.draw.line(self.screen, (235,235,235), (x_a, y_a), (x_b, y_b), 1)
-        
-        
-        for face in self.world.objects['axis']['faces']:
-            break
-            points_in_face = []
-            avg_point = Vector3(0,0,0)
-            for point in face:
-                vec = self.world.objects['axis']['points'][point]
-                output = cam.orient_vector(vec)
-                x, y, z = int(output[0]), int(output[1]), output[2]
-                points_in_face.append((int(x), int(y)))
-                avg_point += output
-                
-            avg_point /= len(points_in_face)
-            if abs(avg_point.z) > self.world.poly_clip_dist:
-                pygame.draw.polygon(self.screen, (0,0,255), points_in_face)
-                
+        cam = self.world.camera      
         
         for obj in self.world.objects:
             points, lines, faces = self.world.draw_object(id_='axis',config={'points':True, 'lines':True, 'faces':True} )
         
             faces = sorted(faces, key=lambda x: x[1], reverse=True)
-            q =0 
+            q = 0 
             for face in faces:
                 if face[2] == True:
                     poly = face[0]
@@ -181,22 +137,21 @@ class Game:
                     if q == 0:
                         col = (255,0,0)
                     else:
-                        col = (0,255,255)
+                        col = (0,0,255)
                     pygame.draw.polygon(self.screen, col, poly)
                 q += 1
                     
             for line in lines:
                 start = line[0]
                 end = line[1]
-                
-                if start[2] > 0 and end[2] > 0:
-                    pygame.draw.line(self.screen, (235,235,235), (start[0], start[1]), (end[0], end[1]), 1)
+            
+                pygame.draw.line(self.screen, (100,100,100), (start[0], start[1]), (end[0], end[1]), 1)
                     
             for point in points:                    
                 x, y, z = int(point[0]), int(point[1]), point[2]
                 if z > 0:
-                    size = 10
-                    pygame.draw.circle(self.screen, (255,255,255), (x, y), int(size))
+                    size = 5
+                    pygame.draw.circle(self.screen, (0,0,0), (x, y), int(size))
                     
             
         
