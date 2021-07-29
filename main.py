@@ -3,6 +3,8 @@ import numpy as np
 import math
 import os
 import random
+from mesh import *
+
 
 WIDTH, HEIGHT = 800, 680
 TITLE = "3d Engine"
@@ -28,6 +30,7 @@ class Game:
         self.world = Environment(cam, (255,255,255))
         
         scale = 1
+        
         self.world.add_object(
             "axis",
             [
@@ -44,6 +47,17 @@ class Game:
                 [2, 0, 3]
             ]
         )
+        
+        a = MeshReader()
+        mesh = a.read("objects/low_sphere.obj", scale=1)
+    
+        self.world.add_object(
+            "cube",
+            mesh.vertices,
+            lines=mesh.generate_line(),
+            faces=mesh.faces
+        )
+        
 
         self.move_speed = 0.02
 
@@ -126,8 +140,8 @@ class Game:
         cam = self.world.camera      
         
         for obj in self.world.objects:
-            points, lines, faces = self.world.draw_object(id_='axis',config={'points':True, 'lines':True, 'faces':True} )
-        
+            points, lines, faces = self.world.draw_object(id_=obj,config={'points':False, 'lines':True, 'faces':True} )
+            
             faces = sorted(faces, key=lambda x: x[1], reverse=True)
             q = 0 
             for face in faces:
@@ -140,14 +154,15 @@ class Game:
                         col = (0,0,255)
                     pygame.draw.polygon(self.screen, col, poly)
                 q += 1
-                    
+                
             for line in lines:
                 start = line[0]
                 end = line[1]
             
                 pygame.draw.line(self.screen, (100,100,100), (start[0], start[1]), (end[0], end[1]), 1)
-                    
-            for point in points:                    
+            
+              
+            for point in points:            
                 x, y, z = int(point[0]), int(point[1]), point[2]
                 if z > 0:
                     size = 5

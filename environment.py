@@ -67,7 +67,7 @@ class Environment(object):
         # Get draw lines
         if config['lines']:
             for startpoint in obj['lines']:
-                    for endpoint in self.objects[id_]['lines'][startpoint]:  
+                    for endpoint in obj['lines'][startpoint]:  
                         
                         if perspective_points[startpoint].xyz[2] > 0 and perspective_points[endpoint].xyz[2] > 0:
                             lines.append(
