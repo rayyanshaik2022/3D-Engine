@@ -15,6 +15,7 @@ class Environment(object):
         #* Suggested distance at which polygons should stop rendering
         self.poly_clip_dist = 0.4 
         
+        
     def add_object(self, id_, points : [Vector3], lines : dict = None, faces : list = None):
         
         if id_ in self.objects:
@@ -67,7 +68,12 @@ class Environment(object):
         
         if config['faces']:
             for face in obj['faces']:
+            
+                faces.append(([(perspective_points[i][0], perspective_points[i][1]) for i in face], 1, True))
                 
+                # Next, implement Z-Buffer
+                
+                '''
                 # Position accounting for camera view/rotation
                 vector_list2 = [Vector3(perspective_points[x][0],perspective_points[x][1],perspective_points[x][2]) for x in face]
                 avg_vector2 = Vector3.average_vector(vector_list2)
@@ -89,7 +95,8 @@ class Environment(object):
                         break
                 
                 faces.append(([(int(x),int(y)) for x, y, z in draw_list], distance_from_cam, all_points_past_cam_z))
-        
+                '''
+                
         return points, lines, faces
         
     def get_points(self) -> [[Vector3]]:

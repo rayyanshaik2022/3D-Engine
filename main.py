@@ -5,6 +5,8 @@ import os
 import random
 from mesh import *
 
+from multiprocessing import Process
+
 
 WIDTH, HEIGHT = 800, 680
 TITLE = "3d Engine"
@@ -49,7 +51,7 @@ class Game:
         )
         
         a = MeshReader()
-        mesh = a.read("objects/low_sphere.obj", scale=1)
+        mesh = a.read("objects/low_sphere.obj", scale=3)
     
         self.world.add_object(
             "cube",
@@ -84,7 +86,7 @@ class Game:
 
         cam = self.world.camera
         cam.rotation.y -= (WIDTH//2 - mx) / 300
-        cam.rotation.x -= (HEIGHT//2 - my) / 300      
+        cam.rotation.x -= (HEIGHT//2 - my) / 300
         
         # clamp up and down rotation view
         rot_x_deg = math.degrees(cam.rotation.x) % 360
@@ -144,9 +146,7 @@ class Game:
             if obj != 'axis':
                 pass
             
-            points, lines, faces = self.world.draw_object(id_=obj,config={'points':False, 'lines':True, 'faces':True} )
-            
-            
+            points, lines, faces = self.world.draw_object(id_=obj,config={'points':True, 'lines':False, 'faces':True} )
 
             faces = sorted(faces, key=lambda x: x[1], reverse=True)
 
@@ -207,6 +207,7 @@ class Game:
 
 
 # create the game object
-g = Game()
-g.new()
-g.run()
+if __name__ == '__main__':
+    g = Game()
+    g.new()
+    g.run()

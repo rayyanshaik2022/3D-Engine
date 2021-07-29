@@ -3,3 +3,4 @@
 3. Collisions?
 
 optimize face
+Z-bugger
