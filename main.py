@@ -80,7 +80,7 @@ class Game:
         pygame.mouse.set_visible(False)
 
         # caption
-        pygame.display.set_caption(f"{TITLE} | Speed {round(self.move_speed,2)}")
+        pygame.display.set_caption(f"{TITLE} | Speed {round(self.move_speed,2)} | Fps {round(self.clock.get_fps(),2)}")
 
         cam = self.world.camera
         cam.rotation.y -= (WIDTH//2 - mx) / 300
@@ -140,33 +140,47 @@ class Game:
         cam = self.world.camera      
         
         for obj in self.world.objects:
+            
+            if obj != 'axis':
+                pass
+            
             points, lines, faces = self.world.draw_object(id_=obj,config={'points':False, 'lines':True, 'faces':True} )
             
+            
+
             faces = sorted(faces, key=lambda x: x[1], reverse=True)
-            q = 0 
+
             for face in faces:
                 if face[2] == True:
                     poly = face[0]
                     
-                    if q == 0:
-                        col = (255,0,0)
-                    else:
-                        col = (0,0,255)
-                    pygame.draw.polygon(self.screen, col, poly)
-                q += 1
+                    flag = True
+                    for point in poly:
+                        if not (point[0] > 0 and point[1] < WIDTH):
+                            flag = False
+                    
+                    if flag:
+                        pygame.draw.polygon(self.screen, (0,0,250), poly)
+
                 
             for line in lines:
                 start = line[0]
                 end = line[1]
-            
-                pygame.draw.line(self.screen, (100,100,100), (start[0], start[1]), (end[0], end[1]), 1)
-            
+                
+                flag = True
+                for point in (start, end):
+                    if not (point[0] > 0 and point[1] < WIDTH):
+                        flag = False
+                
+                if flag:
+                    pygame.draw.line(self.screen, (100,100,100), (start[0], start[1]), (end[0], end[1]), 1)
               
             for point in points:            
                 x, y, z = int(point[0]), int(point[1]), point[2]
                 if z > 0:
-                    size = 5
-                    pygame.draw.circle(self.screen, (0,0,0), (x, y), int(size))
+                    if (x > 0 and x < WIDTH) and (y > 0 and y < HEIGHT):
+                        size = 5
+                        pygame.draw.circle(self.screen, (0,0,0), (x, y), int(size))
                     
             
         

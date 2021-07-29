@@ -1,8 +1,6 @@
 from vector3 import Vector3
 from collections import namedtuple
 
-ConvertedVertex = namedtuple('ConvertedVertex',['vector','xyz'])
-
 class Environment(object):
     
     def __init__(self, camera, color):
@@ -47,21 +45,11 @@ class Environment(object):
         lines = []
         points = []
         faces = []
+    
+        perspective_points = [ self.camera.orient_vector(point) for point in obj['points']]     
+        if config['points']:
+            points = perspective_points
         
-        for point in obj['points']:
-            
-            vec = Vector3(0,0,0)
-            output = self.camera.orient_vector(point)
-            vec.raw = output
-            
-            x, y, z = int(output[0]), int(output[1]), output[2]
-            
-            perspective_points.append(
-                ConvertedVertex(vec, (x,y,z))
-            )
-            
-            if config['points']:
-                points.append((x,y,z))
         
         
         # Get draw lines
@@ -69,16 +57,19 @@ class Environment(object):
             for startpoint in obj['lines']:
                     for endpoint in obj['lines'][startpoint]:  
                         
-                        if perspective_points[startpoint].xyz[2] > 0 and perspective_points[endpoint].xyz[2] > 0:
+                        a_x, a_y, a_z, _ = perspective_points[startpoint]
+                        b_x, by_, b_z, _ = perspective_points[endpoint]
+                        
+                        if a_z > 0 and b_z > 0:
                             lines.append(
-                                (perspective_points[startpoint].xyz, perspective_points[endpoint].xyz)
+                                ((a_x, a_y, a_z), (b_x, by_, b_z))
                             )
         
         if config['faces']:
             for face in obj['faces']:
                 
                 # Position accounting for camera view/rotation
-                vector_list2 = [perspective_points[x].vector for x in face]
+                vector_list2 = [Vector3(perspective_points[x][0],perspective_points[x][1],perspective_points[x][2]) for x in face]
                 avg_vector2 = Vector3.average_vector(vector_list2)
                 
                 if abs(avg_vector2.z) < self.poly_clip_dist:
@@ -88,7 +79,7 @@ class Environment(object):
                 vector_list1 = [obj['points'][x] - self.camera.global_pos for x in face]
                 avg_vector1 = Vector3.average_vector(vector_list1)
                 
-                draw_list = [perspective_points[i].xyz for i in face]
+                draw_list = [(perspective_points[i][0],perspective_points[i][1],perspective_points[i][2]) for i in face]
                 distance_from_cam = self.camera.global_pos.distance(avg_vector1)
                 
                 all_points_past_cam_z = True

@@ -20,96 +20,122 @@ class Camera(object):
         self.offsetX = dim[0] / 2
         self.offsetY = dim[1] / 2
         self.skew = 0
-    
-    def orient_vector(self, point):
-
-        projection_matrix = [
-            [(self.focal_length * self.pixelX) / (2 * self.sensorX), self.skew, 0, 0],
-            [0, (self.focal_length * self.pixelY) / (2 * self.sensorY), 0, 0],
+        
+        self.projection_matrix = np.array([
+            [5, 5, 0, 0],
+            [0, 5, 0, 0],
             [0, 0, -1, 0], 
             [0, 0, 0, 1.0]
-        ]
-
-        local_translation_matrix = [
-            [1, 0, 0, -self.local_pos.x],
-            [0, 1, 0, -self.local_pos.y], 
-            [0, 0, 1, -self.local_pos.z], 
-            [0, 0, 0, 1.0]
-        ]
+        ])
         
-        global_translation_matrix = [
-            [1, 0, 0, -self.global_pos.x],
-            [0, 1, 0, -self.global_pos.y], 
-            [0, 0, 1, -self.global_pos.z], 
+        self.local_translation_matrix = np.array([
+            [1, 0, 0, 5],
+            [0, 1, 0, 5], 
+            [0, 0, 1, 5], 
             [0, 0, 0, 1.0]
-        ]
+        ])
+        
+        self.global_translation_matrix = np.array([
+            [1, 0, 0, 5],
+            [0, 1, 0, 5], 
+            [0, 0, 1, 5], 
+            [0, 0, 0, 1.0]
+        ])
+        
+        self.rotation_x_matrix = np.array([
+            [1, 0, 0, 0],
+            [0, 5, 5, 0],
+            [0, 5, 5, 0],
+            [0, 0, 0, 1.0]
+        ])
+        
+        self.rotation_y_matrix = np.array([
+            [5, 0, 5, 0],
+            [0, 1, 0, 0],
+            [5, 0, 5, 0],
+            [0, 0, 0, 1.0]
+        ])
+    
+        self.rotation_z_matrix = np.array([
+            [5, 5, 0, 0],
+            [5, 5, 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1.0]
+        ])
+        
+        self.offset_matrix = np.array([
+            [ 1, 0, 0, 5 ],
+            [ 0, -1, 0, 5 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 0, 1.0 ]
+        ])
+        
+        self.perspective_matrix = np.array([
+            [5, 0, 0, 0],
+            [0, 5, 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1.0]
+        ])
+        
+    def orient_vector(self, point):
+        
+        self.projection_matrix[0][0] = (self.focal_length * self.pixelX) / (2 * self.sensorX)
+        self.projection_matrix[0][1] = self.skew
+        self.projection_matrix[1][1] = (self.focal_length * self.pixelY) / (2 * self.sensorY)
+
+        self.local_translation_matrix[0][3] = -self.local_pos.x
+        self.local_translation_matrix[1][3] = -self.local_pos.y
+        self.local_translation_matrix[2][3] = -self.local_pos.z
+        
+        self.global_translation_matrix[0][3] = -self.global_pos.x
+        self.global_translation_matrix[1][3] = -self.global_pos.y
+        self.global_translation_matrix[2][3] = -self.global_pos.z
+        
+        
         
         sin_x = sin(self.rotation.x)
         cos_x = cos(self.rotation.x)
-        rotation_x_matrix = [
-            [1, 0, 0, 0],
-            [0, cos_x, -sin_x, 0],
-            [0, sin_x, cos_x, 0],
-            [0, 0, 0, 1.0]
-        ]
+        self.rotation_x_matrix[1][1] = cos_x
+        self.rotation_x_matrix[1][2] = -sin_x
+        self.rotation_x_matrix[2][1] = sin_x
+        self.rotation_x_matrix[2][2] = cos_x
         
         sin_y = sin(self.rotation.y)
         cos_y = cos(self.rotation.y)
-        rotation_y_matrix = [
-            [cos_y, 0, sin_y, 0],
-            [0, 1, 0, 0],
-            [-sin_y, 0, cos_y, 0],
-            [0, 0, 0, 1.0]
-        ]
+        self.rotation_y_matrix[0][0] = cos_y
+        self.rotation_y_matrix[0][2] = sin_y
+        self.rotation_y_matrix[2][0] = -sin_y
+        self.rotation_y_matrix[2][2] = cos_y
         
         sin_z = sin(self.rotation.z)
         cos_z = cos(self.rotation.z)
-        rotation_z_matrix = [
-            [cos_z, -sin_z, 0, 0],
-            [sin_z, cos_z, 0, 0],
-            [0, 0, 1, 0],
-            [0, 0, 0, 1.0]
-        ]
+        self.rotation_z_matrix[0][0] = cos_z
+        self.rotation_z_matrix[0][1] = -sin_z
+        self.rotation_z_matrix[1][0] = sin_z
+        self.rotation_z_matrix[1][1] = cos_z
         
-        offset_matrix = [
-            [ 1, 0, 0, self.offsetX ],
-            [ 0, -1, 0, self.offsetY ],
-            [ 0, 0, 1, 0 ],
-            [ 0, 0, 0, 1.0 ]
-        ]
-        
-        global_translation_matrix = np.array(global_translation_matrix)
-        rotation_z_matrix = np.array(rotation_z_matrix)
-        rotation_y_matrix = np.array(rotation_y_matrix)
-        rotation_x_matrix = np.array(rotation_x_matrix)
-        local_translation_matrix = np.array(local_translation_matrix)
-        offset_matrix = np.array(offset_matrix)
-        
-        result = np.matmul(global_translation_matrix, point.raw)
-        
-        result = np.matmul(rotation_z_matrix, result)
-        
-        result = np.matmul(rotation_y_matrix, result)
-        
-        result = np.matmul(rotation_x_matrix, result)
-        
-        result = np.matmul(local_translation_matrix, result)
-        
-        result = np.matmul(projection_matrix, result)
+        self.offset_matrix[0][3] = self.offsetX
+        self.offset_matrix[1][3] = self.offsetY
         
         
+        result = np.matmul(self.global_translation_matrix, point.raw)
+        
+        result = np.matmul(self.rotation_z_matrix, result)
+        
+        result = np.matmul(self.rotation_y_matrix, result)
+        
+        result = np.matmul(self.rotation_x_matrix, result)
+        
+        result = np.matmul(self.local_translation_matrix, result)
+        
+        result = np.matmul(self.projection_matrix, result)
         
         # gives depth scaling
-        perspective_matrix = [
-            [1/result[2], 0, 0, 0],
-            [0, 1/result[2], 0, 0],
-            [0, 0, 1, 0],
-            [0, 0, 0, 1]
-        ]
-        perspective_matrix = np.array(perspective_matrix)
+        self.perspective_matrix[0][0] = 1/result[2]
+        self.perspective_matrix[1][1] = 1/result[2]
         
-        result = np.matmul(perspective_matrix, result)
-        result = np.matmul(offset_matrix, result)
+        result = np.matmul(self.perspective_matrix, result)
+        result = np.matmul(self.offset_matrix, result)
         
         return result
     

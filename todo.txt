@@ -1,3 +1,5 @@
 1. Mesh implementations
 2. Lighting
 3. Collisions?
+
+optimize face

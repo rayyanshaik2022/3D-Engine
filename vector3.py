@@ -1,4 +1,4 @@
-import math
+from math import sqrt, sin, cos
 import numpy as np
 
 class Vector3(object):
@@ -8,7 +8,7 @@ class Vector3(object):
 
     @property
     def magnitude(self):
-        return math.sqrt(self.x**2 + self.y**2 + self.z**2)
+        return sqrt(self.x**2 + self.y**2 + self.z**2)
     
     @property
     def x(self):
@@ -99,8 +99,8 @@ class Vector3(object):
     
     def rotate(self, angle):
         
-        sin_x = math.sin(angle.x)
-        cos_x = math.cos(angle.x)
+        sin_x = sin(angle.x)
+        cos_x = cos(angle.x)
         rotation_x_matrix = [
             [1, 0, 0, 0],
             [0, cos_x, -sin_x, 0],
@@ -108,8 +108,8 @@ class Vector3(object):
             [0, 0, 0, 1.0]
         ]
         
-        sin_y = math.sin(angle.y)
-        cos_y = math.cos(angle.y)
+        sin_y = sin(angle.y)
+        cos_y = cos(angle.y)
         rotation_y_matrix = [
             [cos_y, 0, sin_y, 0],
             [0, 1, 0, 0],
@@ -117,8 +117,8 @@ class Vector3(object):
             [0, 0, 0, 1.0]
         ]
         
-        sin_z = math.sin(angle.z)
-        cos_z = math.cos(angle.z)
+        sin_z = sin(angle.z)
+        cos_z = cos(angle.z)
         rotation_z_matrix = [
             [cos_z, -sin_z, 0, 0],
             [sin_z, cos_z, 0, 0],
@@ -148,11 +148,11 @@ class Vector3(object):
     def distance(self, other) -> float:
 
         if isinstance(other, Vector3):
-            dist = math.sqrt(
+            dist = sqrt(
                 (self.x-other.x)**2 + (self.y-other.y)**2 + (self.z-other.z)**2
             )
         elif isinstance(other, np.ndarray):
-            dist = math.sqrt(
+            dist = sqrt(
                 (self.x-other[0])**2 + (self.y-other[1])**2 + (self.z-other[2])**2
             )
         else:
