@@ -51,7 +51,7 @@ class Game:
         )
         
         a = MeshReader()
-        mesh = a.read("objects/low_sphere.obj", scale=3)
+        mesh = a.read("objects/LibertStatue.obj", scale=3)
     
         self.world.add_object(
             "cube",
@@ -140,13 +140,14 @@ class Game:
     def draw(self):
         self.screen.fill(self.world.color)
         cam = self.world.camera      
-        
+        cam.orient_matrixes()
+
         for obj in self.world.objects:
             
             if obj != 'axis':
                 pass
             
-            points, lines, faces = self.world.draw_object(id_=obj,config={'points':True, 'lines':False, 'faces':True} )
+            points, lines, faces = self.world.draw_object(id_=obj,config={'points':False, 'lines':True, 'faces':False} )
 
             faces = sorted(faces, key=lambda x: x[1], reverse=True)
 

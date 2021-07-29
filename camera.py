@@ -76,8 +76,8 @@ class Camera(object):
             [0, 0, 1, 0],
             [0, 0, 0, 1.0]
         ])
-        
-    def orient_vector(self, point, z=False):
+
+    def orient_matrixes(self):
         
         self.projection_matrix[0][0] = (self.focal_length * self.pixelX) / (2 * self.sensorX)
         self.projection_matrix[0][1] = self.skew
@@ -117,6 +117,7 @@ class Camera(object):
         self.offset_matrix[0][3] = self.offsetX
         self.offset_matrix[1][3] = self.offsetY
         
+    def orient_vector(self, point, z=False):
         
         result = np.matmul(self.global_translation_matrix, point.raw)
         
