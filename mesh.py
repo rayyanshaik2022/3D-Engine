@@ -45,7 +45,7 @@ class Mesh(object):
         h, s, v, a = base.hsva
         
         for i in range(size):
-            h = random.random() * 30
+            h = random.random() * 30+200
             base.hsva = (h,s,v,a)
             self.poly_palette[i] = (base.r, base.g, base.b)
         

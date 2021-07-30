@@ -1,2 +1,3 @@
-- implement meshes into world objects (or vice versa?)
-    - Allow for easy movement of objects rather than the camera
+- multiple light sources
+- fix vector rotation ( make it more efficient)
+- accurate line mode (render lines from faces)

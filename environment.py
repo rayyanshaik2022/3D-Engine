@@ -17,7 +17,7 @@ class Environment(object):
         #* Suggested distance at which polygons should stop rendering
         self.poly_clip_dist = 0.4 
         
-    def add_object(self, id_, points : [Vector3], lines : dict = None, faces : list = None, mesh= None):
+    def add_object(self, id_, points : [Vector3], lines : dict = None, faces : list = None, mesh = None):
         
         if id_ in self.objects:
             if self.objects[id_] != None:
@@ -29,7 +29,6 @@ class Environment(object):
             "lines" : lines,
             "faces" : faces,
             "mesh" : mesh,
-            "rotation" : Vector3(0,0,0)
         }
 
     def remove_object(self, id_ : str) -> bool:
@@ -44,11 +43,10 @@ class Environment(object):
             self.objects[id_]['points'][i] += vec
 
     def rotate_object(self, id_, vec : Vector3):
-        self.objects[id_]['rotation'] += vec
-        raise NotImplementedError
 
-        ...
-
+        for i in range (len(self.objects[id_]['points'])):
+            self.objects[id_]['points'][i].rotate(vec)
+        
     def scale_object(self, id_, scale : Vector3):
         
         for i in range (len(self.objects[id_]['points'])):
@@ -60,7 +58,7 @@ class Environment(object):
         '''
         
         #* config information
-        # {'points':bool, 'lines':bool, 'faces':bool}   
+        # {'points':bool, 'lines':bool, 'faces':bool, 'lighting':bool}   
         
         if self.camera == None:
             raise AttributeError("Camera not specified!}")

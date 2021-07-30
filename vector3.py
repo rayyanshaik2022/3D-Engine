@@ -4,7 +4,7 @@ import numpy as np
 class Vector3(object):
     
     def __init__(self, x : float, y : float, z : float):
-        self.raw = np.array([float(x), y, z, 1.0])
+        self.raw = np.array([x, y, z, 1.0])
 
     @property
     def magnitude(self):
@@ -132,7 +132,7 @@ class Vector3(object):
         
         result = np.matmul(rotation_x_matrix, self.raw)
         result = np.matmul(rotation_y_matrix, result)
-        result = np.matmul(rotation_y_matrix, result)
+        result = np.matmul(rotation_z_matrix, result)
         
         self.raw = result
     
