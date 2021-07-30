@@ -51,7 +51,7 @@ class Game:
         )
         
         a = MeshReader()
-        mesh = a.read("objects/LibertStatue.obj", scale=3)
+        mesh = a.read("objects/shrek.obj", scale=3)
     
         self.world.add_object(
             "cube",
@@ -142,12 +142,14 @@ class Game:
         cam = self.world.camera      
         cam.orient_matrixes()
 
+        distance_to_center = cam.global_pos.distance(Vector3(0,0,0))
+
         for obj in self.world.objects:
             
             if obj != 'axis':
                 pass
             
-            points, lines, faces = self.world.draw_object(id_=obj,config={'points':False, 'lines':True, 'faces':False} )
+            points, lines, faces = self.world.draw_object(id_=obj,config={'points':True, 'lines':True, 'faces':False} )
 
             faces = sorted(faces, key=lambda x: x[1], reverse=True)
 
@@ -180,8 +182,8 @@ class Game:
                 x, y, z = int(point[0]), int(point[1]), point[2]
                 if z > 0:
                     if (x > 0 and x < WIDTH) and (y > 0 and y < HEIGHT):
-                        size = 5
-                        pygame.draw.circle(self.screen, (0,0,0), (x, y), int(size))
+                        size = 20
+                        pygame.draw.circle(self.screen, (0,0,0), (x, y), int(size/z)+1)
                     
             
         
@@ -205,6 +207,13 @@ class Game:
                     print("Resetting position ...")
                     cam.global_pos.set_as(0,0,0)
                     cam.rotation.set_as(0,0,0)
+                if event.key == pygame.K_t:
+                    
+                    a = cam.global_pos
+                    b = Vector3(0,0,0)
+
+                    distance = a.distance(b)
+                    print(f"Distance to center: {round(distance, 3)}")
 
 
 # create the game object

@@ -2,5 +2,5 @@
 2. Lighting
 3. Collisions?
 
-optimize face
+optimize math & renderings
 Z-bugger

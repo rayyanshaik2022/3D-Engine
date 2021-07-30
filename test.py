@@ -43,7 +43,7 @@ a = MeshReader()
 mesh = a.read("objects/low_sphere.obj", scale=1)
 
 world.add_object(
-    "cube",
+    "sphere",
     mesh.vertices,
     lines=mesh.generate_line(),
     faces=mesh.faces
@@ -78,20 +78,17 @@ def on_draw():
     window.set_caption(str(pyglet.clock.get_fps()))
     # draw
     window.clear()
-    
-    
-    batch.draw()
-    
+        
     # ported
     bg = pyglet.shapes.Rectangle(0, 0, WIDTH, HEIGHT, color=world.color, batch=batch)
     cam = world.camera      
-    
+    cam.orient_matrixes()
+
     for obj in world.objects:
-        
         if obj != 'axis':
             pass
         
-        points, lines, faces = world.draw_object(id_=obj,config={'points':False, 'lines':True, 'faces':True} )
+        points, lines, faces = world.draw_object(id_=obj,config={'points':True, 'lines':True, 'faces':True} )
 
         faces = sorted(faces, key=lambda x: x[1], reverse=True)
 
@@ -119,24 +116,24 @@ def on_draw():
                     flag = False
             
             if flag:
-                pyglet.shapes.Line(start[0], end[0], start[1], end[1], 1, color=(100,100,100), batch=batch)
+                zz = pyglet.shapes.Line(int(start[0]), int(end[0]), int(start[1]), int(end[1]), 1, color=(100,100,100), batch=batch)
                 #pygame.draw.line(self.screen, (100,100,100), (start[0], start[1]), (end[0], end[1]), 1)
             
-        for point in points:            
+        for point in points:        
             x, y, z = int(point[0]), int(point[1]), point[2]
             if z > 0:
                 if (x > 0 and x < WIDTH) and (y > 0 and y < HEIGHT):
                     size = 5
                     
-                    pyglet.shapes.Circle(x, y, radius, segments=None, color=(0,0,0), batch=batch)
+                    z = pyglet.shapes.Circle(int(x), int(y), size, segments=None, color=(0,0,0), batch=batch)
                     #pygame.draw.circle(self.screen, (0,0,0), (x, y), int(size))
-    
+    batch.draw()
 
 @window.event
 def on_mouse_motion(x, y, dx, dy):
     cam = world.camera
-    cam.rotation.y -= (WIDTH//2 - dx) / 300
-    cam.rotation.x -= (HEIGHT//2 - dy) / 300
+    cam.rotation.y -= (WIDTH//2 - dx/40) / 300
+    cam.rotation.x -= (HEIGHT//2 - dy/10) / 300
 
     # clamp up and down rotation view
     rot_x_deg = math.degrees(cam.rotation.x) % 360
