@@ -97,9 +97,21 @@ class Environment(object):
                 avg_x /= f_size
                 avg_y /= f_size
                 avg_z /= f_size
+                
+                distance_from_cam = -sqrt( (avg_z-c_z)**2 )
+                if config['lighting']:
+                    c_out = self.light_source.in_rad((avg_x, avg_y, avg_z))
+                else:
+                    c_out = [0,0,0]
 
                 if avg_z_depth > self.poly_clip_dist:
-                    faces.append(([(perspective_points[i][0], perspective_points[i][1]) for i in face], ind, (avg_x, avg_y, avg_z)))
+                    faces.append(
+                        ([(perspective_points[i][0], perspective_points[i][1]) for i in face], 
+                         distance_from_cam, 
+                         ind, 
+                         (avg_x, avg_y, avg_z),
+                         c_out
+                        ))
                 
                 ind += 1
                 
