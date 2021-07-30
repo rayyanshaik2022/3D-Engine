@@ -1,5 +1,6 @@
 from vector3 import Vector3
 from collections import namedtuple
+from math import sqrt
 
 class Environment(object):
     
@@ -28,7 +29,14 @@ class Environment(object):
             "lines" : lines,
             "faces" : faces
         }
-     
+
+    def remove_object(self, id_):
+        if id_ in self.objects:
+            self.objects.pop(id_)
+            return True
+        else:
+            return False
+
     def draw_object(self, id_, config : dict):
         '''
         Return point, line, and face data to draw an object
@@ -42,6 +50,9 @@ class Environment(object):
         
         obj = self.objects[id_]
         perspective_points = []
+
+        cam = self.camera
+        c_x, c_y, c_z = cam.global_pos
         
         lines = []
         points = []
@@ -68,8 +79,26 @@ class Environment(object):
         
         if config['faces']:
             for face in obj['faces']:
-            
-                faces.append(([(perspective_points[i][0], perspective_points[i][1]) for i in face], 1, True))
+                
+
+                avg_x = 0
+                avg_y = 0
+                avg_z = 0
+                for index in face:
+                    avg_x += perspective_points[index][0]
+                    avg_y += perspective_points[index][1]
+                    avg_z += perspective_points[index][2]
+
+                f_size = len(face)
+                avg_x /= f_size
+                avg_y /= f_size
+                avg_z /= f_size
+
+                distance_from_cam = sqrt( (avg_x-c_x)**2 + (avg_y-c_y)**2 + (avg_z-c_z)**2 )
+
+                if avg_z > 0:
+                    
+                    faces.append(([(perspective_points[i][0], perspective_points[i][1]) for i in face], distance_from_cam, True))
                 
                 # Next, implement Z-Buffer
                 

@@ -24,15 +24,16 @@ class Game:
         self.clock = pygame.time.Clock()
 
     def new(self):
-        
-        pygame.mouse.set_pos((WIDTH//2, HEIGHT//2))
-        camera_pos = Vector3(0,0,0)
-        cam = Camera((WIDTH, HEIGHT))
-        
-        self.world = Environment(cam, (255,255,255))
-        
+
         scale = 1
         
+        pygame.mouse.set_pos((WIDTH//2, HEIGHT//2))
+        camera_pos = Vector3(0,0,20*scale)
+        cam = Camera((WIDTH, HEIGHT))
+        cam.global_pos = camera_pos
+        
+        self.world = Environment(cam, (255,255,255))
+            
         self.world.add_object(
             "axis",
             [
@@ -51,15 +52,16 @@ class Game:
         )
         
         a = MeshReader()
-        mesh = a.read("objects/shrek.obj", scale=3)
+        mesh = a.read("objects/shrek.obj", scale=scale)
     
         self.world.add_object(
-            "cube",
+            "amongus",
             mesh.vertices,
             lines=mesh.generate_line(),
             faces=mesh.faces
-        )
-        
+        )    
+
+        self.world.remove_object("axis")
 
         self.move_speed = 0.02
 
@@ -149,7 +151,7 @@ class Game:
             if obj != 'axis':
                 pass
             
-            points, lines, faces = self.world.draw_object(id_=obj,config={'points':True, 'lines':True, 'faces':False} )
+            points, lines, faces = self.world.draw_object(id_=obj,config={'points':False, 'lines':True, 'faces':True} )
 
             faces = sorted(faces, key=lambda x: x[1], reverse=True)
 
@@ -184,11 +186,7 @@ class Game:
                     if (x > 0 and x < WIDTH) and (y > 0 and y < HEIGHT):
                         size = 20
                         pygame.draw.circle(self.screen, (0,0,0), (x, y), int(size/z)+1)
-                    
-            
-        
-
-            
+                
                 
         pygame.display.flip()
 
