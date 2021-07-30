@@ -4,10 +4,11 @@ from math import sqrt
 
 class Environment(object):
     
-    def __init__(self, camera, color):
+    def __init__(self, camera, light, color):
         
         self.color = color
         self.camera = camera
+        self.light_source = light
         
         self.objects = {}
         
@@ -17,7 +18,7 @@ class Environment(object):
         self.poly_clip_dist = 0.4 
         
         
-    def add_object(self, id_, points : [Vector3], lines : dict = None, faces : list = None):
+    def add_object(self, id_, points : [Vector3], lines : dict = None, faces : list = None, mesh= None):
         
         if id_ in self.objects:
             if self.objects[id_] != None:
@@ -27,7 +28,8 @@ class Environment(object):
             "id_" : id_,
             "points" : points,
             "lines" : lines,
-            "faces" : faces
+            "faces" : faces,
+            "mesh" : mesh
         }
 
     def remove_object(self, id_):
@@ -78,53 +80,28 @@ class Environment(object):
                             )
         
         if config['faces']:
+            ind = 0
             for face in obj['faces']:
-                
 
                 avg_x = 0
                 avg_y = 0
                 avg_z = 0
+                avg_z_depth = 0
                 for index in face:
-                    avg_x += perspective_points[index][0]
-                    avg_y += perspective_points[index][1]
-                    avg_z += perspective_points[index][2]
+                    avg_x += obj['points'][index].x
+                    avg_y += obj['points'][index].y
+                    avg_z += obj['points'][index].z
+                    avg_z_depth += perspective_points[index][2] + obj['points'][index].z
 
                 f_size = len(face)
                 avg_x /= f_size
                 avg_y /= f_size
                 avg_z /= f_size
 
-                distance_from_cam = sqrt( (avg_x-c_x)**2 + (avg_y-c_y)**2 + (avg_z-c_z)**2 )
-
-                if avg_z > 0:
-                    
-                    faces.append(([(perspective_points[i][0], perspective_points[i][1]) for i in face], distance_from_cam, True))
+                if avg_z_depth > self.poly_clip_dist:
+                    faces.append(([(perspective_points[i][0], perspective_points[i][1]) for i in face], ind, (avg_x, avg_y, avg_z)))
                 
-                # Next, implement Z-Buffer
-                
-                '''
-                # Position accounting for camera view/rotation
-                vector_list2 = [Vector3(perspective_points[x][0],perspective_points[x][1],perspective_points[x][2]) for x in face]
-                avg_vector2 = Vector3.average_vector(vector_list2)
-                
-                if abs(avg_vector2.z) < self.poly_clip_dist:
-                    continue
-                
-                # Position to camera raw world position
-                vector_list1 = [obj['points'][x] - self.camera.global_pos for x in face]
-                avg_vector1 = Vector3.average_vector(vector_list1)
-                
-                draw_list = [(perspective_points[i][0],perspective_points[i][1],perspective_points[i][2]) for i in face]
-                distance_from_cam = self.camera.global_pos.distance(avg_vector1)
-                
-                all_points_past_cam_z = True
-                for point in draw_list:
-                    if point[2] <= 0:
-                        all_points_past_cam_z = False
-                        break
-                
-                faces.append(([(int(x),int(y)) for x, y, z in draw_list], distance_from_cam, all_points_past_cam_z))
-                '''
+                ind += 1
                 
         return points, lines, faces
         

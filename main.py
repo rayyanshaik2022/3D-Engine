@@ -15,6 +15,7 @@ FPS = 144
 from environment import Environment
 from vector3 import Vector3
 from camera import Camera
+from light import Light
 
 class Game:
     def __init__(self):
@@ -28,11 +29,14 @@ class Game:
         scale = 1
         
         pygame.mouse.set_pos((WIDTH//2, HEIGHT//2))
-        camera_pos = Vector3(0,0,20*scale)
+        camera_pos = Vector3(0,0,20)
         cam = Camera((WIDTH, HEIGHT))
         cam.global_pos = camera_pos
         
-        self.world = Environment(cam, (255,255,255))
+        light = Light(Vector3(0,0,0), (100,100,100), 5, 30, None)
+        
+        self.world = Environment(cam, light, (0,0,0))
+        self.world.poly_clip_dist = 0.65
             
         self.world.add_object(
             "axis",
@@ -52,13 +56,16 @@ class Game:
         )
         
         a = MeshReader()
-        mesh = a.read("objects/shrek.obj", scale=scale)
+        mesh = a.read("objects/harambe.obj", scale=scale)
+        mesh.generate_random_colors(10)
+        mesh.scale(0.2)
     
         self.world.add_object(
             "amongus",
             mesh.vertices,
             lines=mesh.generate_line(),
-            faces=mesh.faces
+            faces=mesh.faces,
+            mesh=mesh
         )    
 
         self.world.remove_object("axis")
@@ -145,28 +152,43 @@ class Game:
         cam.orient_matrixes()
 
         distance_to_center = cam.global_pos.distance(Vector3(0,0,0))
-
+        self.world.light_source.pos = cam.global_pos
+        
         for obj in self.world.objects:
             
             if obj != 'axis':
                 pass
             
-            points, lines, faces = self.world.draw_object(id_=obj,config={'points':False, 'lines':True, 'faces':True} )
+            points, lines, faces = self.world.draw_object(id_=obj,config={'points':False, 'lines':False, 'faces':True} )
 
-            faces = sorted(faces, key=lambda x: x[1], reverse=True)
+            faces = sorted(faces, key=lambda x: x[1], reverse=False)
+            if self.world.objects[obj]['mesh'] != None:
+                color_size = len(self.world.objects[obj]['mesh'].poly_palette)
+            else:
+                color_size = -1
 
             for face in faces:
-                if face[2] == True:
-                    poly = face[0]
+                poly = face[0]
+                
+                flag = True
+                for point in poly:
+                    if not (point[0] > 0 and point[1] < WIDTH):
+                        flag = False
+                
+                if flag:
+                    color_size = -1
+                    if color_size == -1:
+                        color = (130, 130, 130)
+                    else:
+                        color = self.world.objects[obj]['mesh'].poly_palette[face[1]%color_size]
                     
-                    flag = True
-                    for point in poly:
-                        if not (point[0] > 0 and point[1] < WIDTH):
-                            flag = False
-                    
-                    if flag:
-                        pygame.draw.polygon(self.screen, (0,0,250), poly)
-
+                    out = self.world.light_source.in_rad(face[2])
+                    out[0] =  min((out[0] + color[0], 255))
+                    out[1] = min((out[1] + color[1], 255))
+                    out[2] = min((out[2] + color[2], 255))
+    
+                    pygame.draw.polygon(self.screen, out , poly)
+                
                 
             for line in lines:
                 start = line[0]

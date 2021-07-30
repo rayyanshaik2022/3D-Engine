@@ -2,6 +2,9 @@ import numpy as np
 import math
 from vector3 import Vector3
 import re
+import random
+from pygame import Color
+import random
 
 class Mesh(object):
     def __init__(self, name, vertices, faces):
@@ -10,6 +13,22 @@ class Mesh(object):
         self.vertices = vertices
         self.line = []
         self.faces = faces
+        
+        self.poly_palette = {}
+        
+    def translate(self, vec):
+    
+        if isinstance(vec, Vector3):
+            for i in range(len(self.vertices)):
+                self.vertices[i] += vec
+        elif isinstance(vec, tuple):
+            add_vec = Vector3(*vec)
+            for i in range(len(self.vertices)):
+                self.vertices[i] += add_vec
+    
+    def scale(self, mag):
+        for i in range(len(self.vertices)):
+                self.vertices[i] *= mag
     
     def generate_line(self):
         
@@ -20,6 +39,17 @@ class Mesh(object):
         lines[len(self.vertices)-1] = [0]
         
         return lines
+    
+    def generate_random_colors(self, size=5):
+        base = Color(242, 200, 82)
+        h, s, v, a = base.hsva
+        
+        for i in range(size):
+            h = random.random() * 20
+            base.hsva = (h,s,v,a)
+            self.poly_palette[i] = (base.r, base.g, base.b)
+        
+        return self.poly_palette
     
 class MeshReader(object):
     
@@ -64,4 +94,7 @@ if __name__ == '__main__':
     a = MeshReader()
     mesh = a.read("objects/cube.obj")
     
+    mesh.generate_random_colors(3)
+    
     print(mesh.generate_line())
+    print(mesh.generate_random_colors())
