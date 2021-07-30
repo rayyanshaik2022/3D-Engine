@@ -1,6 +1,2 @@
-1. Mesh implementations
-2. Lighting
-3. Collisions?
-
-optimize math & renderings
-Z-bugger
+- implement meshes into world objects (or vice versa?)
+    - Allow for easy movement of objects rather than the camera

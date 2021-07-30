@@ -3,15 +3,14 @@ from math import sqrt
 
 class Light(object):
     
-    def __init__(self, pos, color, intensity, rad, type_):
+    def __init__(self, pos : Vector3, color : tuple, intensity : float, rad : float):
         
         self.pos = pos
         self.color = color
         self.intensity = intensity
         self.rad = rad
-        self.type = type_
     
-    def in_rad(self, point):
+    def in_rad(self, point : tuple) -> list:
 
         # point is tuple not vector for efficiency
         # (x, y, z)

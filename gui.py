@@ -5,9 +5,7 @@ import os
 import random
 from mesh import *
 
-from multiprocessing import Process
-
-
+#* Constants
 WIDTH, HEIGHT = 800, 680
 TITLE = "3d Engine"
 FPS = 144
@@ -17,27 +15,37 @@ from vector3 import Vector3
 from camera import Camera
 from light import Light
 
-class Game:
+class Gui:
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption(TITLE)
         self.clock = pygame.time.Clock()
 
-    def new(self):
-
-        scale = 1
-        
+    def initialize(self):
         pygame.mouse.set_pos((WIDTH//2, HEIGHT//2))
+        self.mesh_reader = MeshReader()
+        
+        self.initialize_environment()
+        self.initialize_objects()
+    
+    def initialize_environment(self):
+        
         camera_pos = Vector3(0,0,20*1)
-        cam = Camera((WIDTH, HEIGHT))
-        cam.global_pos = camera_pos
+        camera = Camera((WIDTH, HEIGHT))
+        camera.global_pos = camera_pos
         
         light = Light(Vector3(0,0,0), (100,150,100), 5, 30)
-        
-        self.world = Environment(cam, light, (0,0,0))
+
+        self.world = Environment(camera, light, (0,0,0))
         self.world.poly_clip_dist = 0.65
-            
+        
+        self.move_speed = 0.02
+
+    def initialize_objects(self):
+        
+        scale = 1
+        
         self.world.add_object(
             "axis",
             [
@@ -55,9 +63,8 @@ class Game:
             ]
         )
         self.world.remove_object("axis")
-        
-        a = MeshReader()
-        mesh = a.read("objects/amongus.obj", scale=scale)
+
+        mesh = self.mesh_reader.read(os.path.dirname(os.path.realpath(__file__))+"/objects/amongus.obj", scale=scale)
         mesh.generate_random_colors(10)
         mesh.scale(0.25)
     
@@ -69,11 +76,11 @@ class Game:
             mesh=mesh
         )  
 
-        
-        self.move_speed = 0.02
-
     def run(self):
         self.playing = True
+        
+        self.initialize()
+        
         while self.playing:
             self.dt = self.clock.tick(FPS) / 1000 # Controls update speed (FPS per second)
             self.events()
@@ -84,33 +91,13 @@ class Game:
         pygame.quit()
         quit()
 
-    def update(self):
-        
-        mx, my = pygame.mouse.get_pos()
+    def update_controls(self):
+        self.mx, self.my = pygame.mouse.get_pos()
         pygame.mouse.set_pos((WIDTH//2, HEIGHT//2))
         pygame.mouse.set_visible(False)
         
-        #self.world.translate_object("amongus",Vector3(0,0,.01))
-
-        # caption
-        pygame.display.set_caption(f"{TITLE} | Speed {round(self.move_speed,2)} | Fps {round(self.clock.get_fps(),2)}")
-
-        cam = self.world.camera
-        cam.rotation.y -= (WIDTH//2 - mx) / 300
-        cam.rotation.x -= (HEIGHT//2 - my) / 300
-        
-        # clamp up and down rotation view
-        rot_x_deg = math.degrees(cam.rotation.x) % 360
-        rot_x_deg_prime = 360 - rot_x_deg
-        if rot_x_deg_prime > 65 and rot_x_deg_prime < 295:
-            dist_65 = abs(rot_x_deg_prime-65)
-            dist_295 = abs(rot_x_deg_prime-295)
-            if dist_65 < dist_295:
-                cam.rotation.x = math.radians(295)
-            else:
-                cam.rotation.x = math.radians(65)
-                
         keys = pygame.key.get_pressed()
+        cam = self.world.camera
         
         if keys[pygame.K_w]:
             
@@ -147,7 +134,29 @@ class Game:
         if keys[pygame.K_p]:
 
             self.move_speed /= 1.1
-
+        
+    def update(self):
+        
+        self.update_controls()
+        
+        # caption
+        pygame.display.set_caption(f"{TITLE} | Speed {round(self.move_speed,2)} | Fps {round(self.clock.get_fps(),2)}")
+    
+        cam = self.world.camera
+        cam.rotation.y -= (WIDTH//2 - self.mx) / 300
+        cam.rotation.x -= (HEIGHT//2 - self.my) / 300
+    
+        # clamp up and down rotation view
+        rot_x_deg = math.degrees(cam.rotation.x) % 360
+        rot_x_deg_prime = 360 - rot_x_deg
+        if rot_x_deg_prime > 65 and rot_x_deg_prime < 295:
+            dist_65 = abs(rot_x_deg_prime-65)
+            dist_295 = abs(rot_x_deg_prime-295)
+            if dist_65 < dist_295:
+                cam.rotation.x = math.radians(295)
+            else:
+                cam.rotation.x = math.radians(65)
+    
     def draw(self):
         self.screen.fill(self.world.color)
         cam = self.world.camera      
@@ -236,9 +245,7 @@ class Game:
                     distance = a.distance(b)
                     print(f"Distance to center: {round(distance, 3)}")
 
-
 # create the game object
 if __name__ == '__main__':
-    g = Game()
-    g.new()
+    g = Gui()
     g.run()

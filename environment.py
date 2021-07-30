@@ -17,7 +17,6 @@ class Environment(object):
         #* Suggested distance at which polygons should stop rendering
         self.poly_clip_dist = 0.4 
         
-        
     def add_object(self, id_, points : [Vector3], lines : dict = None, faces : list = None, mesh= None):
         
         if id_ in self.objects:
@@ -29,17 +28,33 @@ class Environment(object):
             "points" : points,
             "lines" : lines,
             "faces" : faces,
-            "mesh" : mesh
+            "mesh" : mesh,
+            "rotation" : Vector3(0,0,0)
         }
 
-    def remove_object(self, id_):
+    def remove_object(self, id_ : str) -> bool:
         if id_ in self.objects:
             self.objects.pop(id_)
             return True
         else:
             return False
+        
+    def translate_object(self, id_, vec : Vector3):
+        for i in range (len(self.objects[id_]['points'])):
+            self.objects[id_]['points'][i] += vec
 
-    def draw_object(self, id_, config : dict):
+    def rotate_object(self, id_, vec : Vector3):
+        self.objects[id_]['rotation'] += vec
+        raise NotImplementedError
+
+        ...
+
+    def scale_object(self, id_, scale : Vector3):
+        
+        for i in range (len(self.objects[id_]['points'])):
+            self.objects[id_]['points'][i] *= scale
+
+    def draw_object(self, id_, config : dict) -> tuple:
         '''
         Return point, line, and face data to draw an object
         '''
