@@ -6,5 +6,5 @@ This projects features a 3D Rendering Engine that I have written using Python3 a
 ## Rendering 3D object by vertices and lines
 ![](https://rayyanshaik.com/images/line-render.gif)
 
-## Rendering #d object by faces (with light source)
+## Rendering 3d object by faces (with light source)
 ![](https://rayyanshaik.com/images/face-render.gif)
